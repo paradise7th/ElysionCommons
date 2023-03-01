@@ -29,6 +29,10 @@ public class DSConnect extends DBConnect {
 		return null;
 	}
 	
+	public DataSource getDataSource(){
+	     return dataSource;
+    }
+	
 
     @Override
     public Connection getDBConnect() {

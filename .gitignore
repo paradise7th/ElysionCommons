@@ -2,3 +2,6 @@
 /.idea/
 /src/test/
 /ElysionCommons.iml
+/logs
+/logs/system.err
+/logs/system.log
