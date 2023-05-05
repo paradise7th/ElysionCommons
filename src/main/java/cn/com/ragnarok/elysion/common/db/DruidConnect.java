@@ -6,12 +6,13 @@ import org.apache.log4j.Logger;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Properties;
 
+/**
+ * Druid连接池快速查询类,使用getInstance返回一个DSconnect对象
+ * 可在启动前配置属性文件,或单独产生DSconnect
+ */
 public class DruidConnect  {
     private static final Logger log = Logger.getLogger(DruidConnect.class);
     private static String defPropFile="./config/db.properties";

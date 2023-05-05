@@ -17,6 +17,9 @@ import java.util.Vector;
 
 import cn.com.ragnarok.elysion.common.util.ConfigLoader;
 
+/**
+ * 快捷数据库查询类
+ */
 public class DBConnect {
 	private final static org.apache.log4j.Logger log = org.apache.log4j.LogManager
 			.getLogger(DBConnect.class);
@@ -110,7 +113,7 @@ public class DBConnect {
 		}
 	}
 	
-	private void closeAfterExecute(ResultSet rs,Statement st){
+	private void closeAfterExecute(Connection conn,ResultSet rs,Statement st){
 		if (rs != null) {
 			try {
 				rs.close();
@@ -124,7 +127,10 @@ public class DBConnect {
 			}
 		}
 		if(closeAfterExcute){
-			closeConnection();
+			try {
+				conn.close();
+			} catch (SQLException ex1) {
+			}
 		}
 	}
 
@@ -133,8 +139,10 @@ public class DBConnect {
 		Vector data = new Vector();
 		Statement st = null;
 		ResultSet rs = null;
+		Connection conn=null;
 		try {
-			st = getDBConnect().createStatement();
+			conn=getDBConnect();
+			st = conn.createStatement();
 			rs = st.executeQuery(sql);
 			ResultSetMetaData rsmt = rs.getMetaData();
 			int count = rsmt.getColumnCount();
@@ -153,7 +161,7 @@ public class DBConnect {
 			log.warn("query fail", e);
 		} finally {
 			
-			closeAfterExecute(rs,st);
+			closeAfterExecute(conn,rs,st);
 		}
 		log.debug("result:" + data.size());
 		return data;
@@ -165,8 +173,10 @@ public class DBConnect {
 		Vector data = new Vector();
 		Statement st = null;
 		ResultSet rs = null;
+		Connection conn = null;
 		try {
-			st = getDBConnect().createStatement();
+			conn=getDBConnect();
+			st = conn.createStatement();
 			rs = st.executeQuery(sql);
 			ResultSetMetaData rsmt = rs.getMetaData();
 			int count = rsmt.getColumnCount();
@@ -184,7 +194,7 @@ public class DBConnect {
 		} catch (Exception e) {
 			log.warn("query fail", e);
 		} finally {
-			closeAfterExecute(rs,st);
+			closeAfterExecute(conn,rs,st);
 		}
 		log.debug("result:" + data.size());
 		return data;
@@ -211,11 +221,13 @@ public class DBConnect {
 		int result = -1;
 		PreparedStatement st = null;
 		ResultSet rs = null;
+		Connection conn=null;
 		try {
+			conn=getDBConnect();
 			if (params == null) {
 				params = new Object[] {};
 			}
-			st = getDBConnect().prepareStatement(sql);
+			st = conn.prepareStatement(sql);
 			for (int i = 0; i < params.length; i++) {
 				st.setObject(i + 1, params[i]);
 			}
@@ -224,7 +236,7 @@ public class DBConnect {
 		} catch (Exception e) {
 			log.warn("update fail", e);
 		} finally {
-			closeAfterExecute(rs,st);
+			closeAfterExecute(conn,rs,st);
 		}
 		log.debug("updates:" + result);
 		return result;
@@ -237,11 +249,13 @@ public class DBConnect {
 		Vector data = new Vector();
 		PreparedStatement st = null;
 		ResultSet rs = null;
+		Connection conn=null;
 		try {
+			conn=getDBConnect();
 			if (params == null) {
 				params = new Object[] {};
 			}
-			st = getDBConnect().prepareStatement(sql);
+			st = conn.prepareStatement(sql);
 			for (int i = 0; i < params.length; i++) {
 				st.setObject(i + 1, params[i]);
 			}
@@ -263,7 +277,7 @@ public class DBConnect {
 		} catch (Exception e) {
 			log.warn("query fail", e);
 		} finally {
-			closeAfterExecute(rs,st);
+			closeAfterExecute(conn,rs,st);
 		}
 		log.debug("result:" + data.size());
 		return data;
@@ -276,11 +290,13 @@ public class DBConnect {
 		Vector data = new Vector();
 		PreparedStatement st = null;
 		ResultSet rs = null;
+		Connection conn=null;
 		try {
+			conn=getDBConnect();
 			if (params == null) {
 				params = new Object[] {};
 			}
-			st = getDBConnect().prepareStatement(sql);
+			st = conn.prepareStatement(sql);
 			for (int i = 0; i < params.length; i++) {
 				st.setObject(i + 1, params[i]);
 			}
@@ -302,7 +318,7 @@ public class DBConnect {
 		} catch (Exception e) {
 			log.warn("query fail", e);
 		} finally {
-			closeAfterExecute(rs,st);
+			closeAfterExecute(conn,rs,st);
 		}
 		log.debug("result:" + data.size());
 		return data;
@@ -318,11 +334,14 @@ public class DBConnect {
 		Object obj=null;
 		PreparedStatement st = null;
 		ResultSet rs = null;
+		Connection conn=null;
 		try {
+			conn=getDBConnect();
+		
 			if (params == null) {
 				params = new Object[] {};
 			}
-			st = getDBConnect().prepareStatement(sql);
+			st = conn.prepareStatement(sql);
 			for (int i = 0; i < params.length; i++) {
 				st.setObject(i + 1, params[i]);
 			}
@@ -334,7 +353,7 @@ public class DBConnect {
 		} catch (Exception e) {
 			log.warn("query fail", e);
 		} finally {
-			closeAfterExecute(rs,st);
+			closeAfterExecute(conn,rs,st);
 		}
 		log.debug("result:" + obj);
 		return obj;

@@ -4,17 +4,14 @@ package cn.com.ragnarok.elysion.common.util;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.apache.log4j.RollingFileAppender;
-import org.apache.log4j.SimpleLayout;
+import org.apache.log4j.*;
 
 public class Log4jUtil {
 
     public static final String APPENDER_ELYSION_COMMON_LOG="F";
     public static final String APPENDER_ELYSION_COMMON_ERR="ERR";
+    public static final String LAYOUT_ELYSION_COMMON_FILE="%-5p [%d{yyyy-MM-dd HH\\:mm\\:ss}] %c{1}:%L - %m%n";
+    public static final String LAYOUT_ELYSION_COMMON_CONSOLE="%d{ABSOLUTE} %5p %c{1}:%L - %m%n";
 
 
     public static void changeElysionLogFile(String filename,int maxBackups,String filesize){
@@ -66,7 +63,9 @@ public class Log4jUtil {
 
 
     public static RollingFileAppender addSimpleRollingFileAppender (Logger log,String filename,int maxBackups,String filesize) throws IOException {
-        RollingFileAppender appender=new RollingFileAppender(new SimpleLayout(),filename);
+        PatternLayout layout=new PatternLayout();
+        layout.setConversionPattern(LAYOUT_ELYSION_COMMON_FILE);
+        RollingFileAppender appender=new RollingFileAppender(layout,filename);
         appender.setMaxBackupIndex(maxBackups);
         appender.setMaxFileSize(filesize);
         appender.setThreshold(Level.INFO);
@@ -76,6 +75,8 @@ public class Log4jUtil {
     }
 
     public static ConsoleAppender addSimpleConsoleAppender (Logger log,String filename,int maxBackups,String filesize) throws IOException {
+        PatternLayout layout=new PatternLayout();
+        layout.setConversionPattern(LAYOUT_ELYSION_COMMON_CONSOLE);
         ConsoleAppender appender=new ConsoleAppender(new SimpleLayout(),filename);
         appender.setThreshold(Level.INFO);
         appender.activateOptions();

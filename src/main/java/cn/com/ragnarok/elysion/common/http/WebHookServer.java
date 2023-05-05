@@ -42,48 +42,57 @@ public class WebHookServer {
     }
     
     public void start(){
-        log.info("HTTP-WebHookServer: start at port: "+port);
+        log.info("WEBSERV-START: start at port: "+port);
         server.start();
     }
     
     public void addContextHandler(String context,HttpHandler handler){
-        log.info("HTTP-WebHookServer: init context:"+context);
+        log.info("WEBSERV-INIT: init context:"+context);
         server.createContext(context,handler);
     }
 
     public void addContextService(String context,WebHookService service){
-        log.info("HTTP-WebHookServer: init context:"+context);
+        log.info("WEBSERV-INIT: init context:"+context);
         service.initService();
         server.createContext(context, new HttpHandler() {
             @Override
             public void handle(HttpExchange httpExchange) throws IOException {
-                if(showlog){
-                    log.info("HTTP-"+httpExchange.getRequestMethod()+": "+httpExchange.getRequestURI());
-                }
-                if(service.acceptRequest(httpExchange)==false){
-                    return;
+                InputStream in = httpExchange.getRequestBody(); //获得输入流
+                try {
+                    if(showlog){
+                        log.info("WEBSERV-"+httpExchange.getRequestMethod()+": "+httpExchange.getRequestURI());
+                    }
+                    if(service.acceptRequest(httpExchange)==false){
+                        return;
+                    }
+
+                    
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in,encoding));
+                    String line = null;
+                    String body="";
+                    while((line = reader.readLine()) != null) {
+                        body+=line;
+                    }
+                    if(showlog){
+                        log.info("WEBSERV-BODY: "+body);
+                    }
+                    String response=service.receiveData(httpExchange,body);
+                    if(response!=null){
+                        byte[] resdata=response.getBytes(encoding);
+                        httpExchange.sendResponseHeaders(200, resdata.length);
+                        OutputStream out = httpExchange.getResponseBody();  //获得输出流
+                        out.write(resdata);
+                        out.flush();
+                    }
+                } catch (Exception e) {
+                    log.error("WEBSERV-ERR: SERVICE ERROR",e);
+                } finally {
+                   if(in!=null){
+                       in.close();
+                   }
+                   httpExchange.close();
                 }
 
-                InputStream in = httpExchange.getRequestBody(); //获得输入流
-                BufferedReader reader = new BufferedReader(new InputStreamReader(in,encoding));
-                String line = null;
-                String body="";
-                while((line = reader.readLine()) != null) {
-                    body+=line;
-                }
-                if(showlog){
-                    log.info("HTTP-BODY: "+body);
-                }
-                String response=service.receiveData(httpExchange,body);
-                if(response!=null){
-                    byte[] resdata=response.getBytes(encoding);
-                    httpExchange.sendResponseHeaders(200, resdata.length);
-                    OutputStream out = httpExchange.getResponseBody();  //获得输出流
-                    out.write(resdata);
-                    out.flush();
-                }
-               
-                httpExchange.close();
             }
         });
     }
